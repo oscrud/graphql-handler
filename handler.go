@@ -5,34 +5,36 @@ import (
 	"github.com/oscrud/oscrud"
 )
 
+// Options :
+type Options struct {
+	RootObject          map[string]interface{}
+	ReservedQueryString string
+}
+
 // Handler :
-func Handler(operationString string, reservedQueryString string, rootObject map[string]interface{}, schema graphql.Schema) oscrud.Handler {
-	if operationString == "" {
-		operationString = "action"
+func Handler(schema graphql.Schema, opts ...Options) oscrud.Handler {
+	options := Options{}
+	if len(opts) > 0 {
+		options = opts[0]
 	}
 
-	if reservedQueryString == "" {
-		reservedQueryString = "query"
+	if options.ReservedQueryString == "" {
+		options.ReservedQueryString = "query"
 	}
 
 	return func(ctx oscrud.Context) oscrud.Context {
 		params := graphql.Params{
 			Schema:     schema,
-			RootObject: rootObject,
+			RootObject: options.RootObject,
 			Context:    ctx.Context(),
 		}
 
 		queries := ctx.Query()
-		if graphQuery, ok := queries[reservedQueryString]; ok {
+		if graphQuery, ok := queries[options.ReservedQueryString]; ok {
 			params.RequestString = graphQuery.(string)
-		}
-
-		if operationName, ok := queries[operationString]; ok {
-			params.OperationName = operationName.(string)
-		}
-
-		if len(queries) > 0 {
-			params.VariableValues = queries
+			if len(queries) > 0 {
+				params.VariableValues = queries
+			}
 		}
 
 		result := graphql.Do(params)
