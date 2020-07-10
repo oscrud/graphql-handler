@@ -1,4 +1,4 @@
-module github.com/oscrud/graphql
+module github.com/oscrud/graphql-handler
 
 go 1.13
 
