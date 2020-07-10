@@ -6,26 +6,33 @@ import (
 )
 
 // Handler :
-func Handler(operation string, reservedQueryString string, rootObject map[string]interface{}, schema graphql.Schema) oscrud.Handler {
+func Handler(operationString string, reservedQueryString string, rootObject map[string]interface{}, schema graphql.Schema) oscrud.Handler {
+	if operationString == "" {
+		operationString = "action"
+	}
+
 	if reservedQueryString == "" {
 		reservedQueryString = "query"
 	}
 
 	return func(ctx oscrud.Context) oscrud.Context {
 		params := graphql.Params{
-			Schema:        schema,
-			OperationName: operation,
-			RootObject:    rootObject,
-			Context:       ctx.Context(),
+			Schema:     schema,
+			RootObject: rootObject,
+			Context:    ctx.Context(),
 		}
 
 		queries := ctx.Query()
 		if graphQuery, ok := queries[reservedQueryString]; ok {
 			params.RequestString = graphQuery.(string)
-			delete(queries, reservedQueryString)
-			if len(queries) > 0 {
-				params.VariableValues = queries
-			}
+		}
+
+		if operationName, ok := queries[operationString]; ok {
+			params.OperationName = operationName.(string)
+		}
+
+		if len(queries) > 0 {
+			params.VariableValues = queries
 		}
 
 		result := graphql.Do(params)
