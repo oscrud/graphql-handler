@@ -42,6 +42,6 @@ func Handler(schema graphql.Schema, opts ...Options) oscrud.Handler {
 		if len(result.Errors) > 0 {
 			status = 400
 		}
-		return ctx.JSON(status, result).End()
+		return ctx.JSON(status, result)
 	}
 }
