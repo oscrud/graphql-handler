@@ -22,7 +22,7 @@ func Handler(schema graphql.Schema, opts ...Options) oscrud.Handler {
 		options.ReservedQueryString = "query"
 	}
 
-	return func(ctx oscrud.Context) oscrud.Context {
+	return func(ctx *oscrud.Context) *oscrud.Context {
 		params := graphql.Params{
 			Schema:     schema,
 			RootObject: options.RootObject,
